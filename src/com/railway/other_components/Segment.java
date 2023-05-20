@@ -1,4 +1,4 @@
-package com.railway.segment;
+package com.railway.other_components;
 
 import java.util.ArrayList;
 import java.util.concurrent.locks.Condition;
@@ -28,11 +28,11 @@ public abstract class Segment {
 		return capacity;
 	}
 	
-	public Segment geteNextSegement() {
+	public Segment getNextSegment() {
 		return nextSegment;
 	}
 	
-	public void setNextSegment(Segment nextSegement) {
+	public void setNextSegment(Segment nextSegment) {
 		this.nextSegment = nextSegment;
 	}
 	
@@ -61,7 +61,32 @@ public abstract class Segment {
 		}
 	}
 	
-	public String createSegement() {
+	
+	// method for train to depart station if next segment is not full checks to see
+	// if next segment is full, if not it departs the last station
+	public void depart(Train train) {
+		boolean isNextFull = false;
+		if(nextSegment != null) {
+			isNextFull = nextSegment.getIsFull();
+		}
+		lock.lock();
+		try {
+			while(isNextFull == true) {
+				cond.await();
+			}
+			capacity.remove(train);
+			isFull = false;
+			cond.signal();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			lock.unlock();
+		}
+	}
+	
+	public String createSegment() {
 		String track = "|----" + getStatus() + "----|";
 		return track;
 	}
